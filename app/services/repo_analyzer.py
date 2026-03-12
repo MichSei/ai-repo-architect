@@ -87,3 +87,61 @@ def detect_languages(code_files):
             detected.add(language_map[ext])
 
     return list(detected)
+
+def detect_technologies(repo_path: str):
+
+    technologies = set()
+
+    requirements = os.path.join(repo_path, "requirements.txt")
+    pyproject = os.path.join(repo_path, "pyproject.toml")
+
+    if os.path.exists(requirements):
+
+        with open(requirements, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read().lower()
+
+            if "fastapi" in content:
+                technologies.add("FastAPI")
+
+            if "django" in content:
+                technologies.add("Django")
+
+            if "flask" in content:
+                technologies.add("Flask")
+
+            if "sqlalchemy" in content:
+                technologies.add("SQLAlchemy")
+
+    if os.path.exists(pyproject):
+
+        with open(pyproject, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read().lower()
+
+            if "fastapi" in content:
+                technologies.add("FastAPI")
+
+            if "django" in content:
+                technologies.add("Django")
+
+    package_json = os.path.join(repo_path, "package.json")
+
+    if os.path.exists(package_json):
+
+        with open(package_json, "r", encoding="utf-8", errors="ignore") as f:
+            content = f.read().lower()
+
+            if "react" in content:
+                technologies.add("React")
+
+            if "next" in content:
+                technologies.add("Next.js")
+
+            if "vue" in content:
+                technologies.add("Vue")
+
+    dockerfile = os.path.join(repo_path, "Dockerfile")
+
+    if os.path.exists(dockerfile):
+        technologies.add("Docker")
+
+    return list(technologies)
