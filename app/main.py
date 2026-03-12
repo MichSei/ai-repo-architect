@@ -2,7 +2,11 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 
 from app.services.repo_cloner import clone_repository
-from app.services.repo_analyzer import get_repo_structure
+from app.services.repo_analyzer import (
+    get_repo_structure,
+    get_code_files,
+    detect_languages
+)
 
 app = FastAPI()
 
@@ -23,8 +27,14 @@ def analyze_repo(request: RepoRequest):
 
     structure = get_repo_structure(repo_path)
 
+    code_files = get_code_files(repo_path)
+
+    languages = detect_languages(code_files)
+
     return {
         "repo_path": repo_path,
-        "file_count": len(structure),
-        "files": structure[:50]
+        "total_files": len(structure),
+        "code_files": len(code_files),
+        "languages_detected": languages,
+        "sample_files": code_files[:20]
     }
