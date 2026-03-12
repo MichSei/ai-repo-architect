@@ -14,9 +14,14 @@ from app.services.llm_analyzer import (
     generate_architecture_diagram
 )
 from app.services.architecture_detector import detect_architecture_layers
+from app.services.embedding_service import index_code_files
+from app.services.embedding_service import search_code
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
+
+CURRENT_REPO = None
+LAST_ANALYSIS = None
 
 class RepoRequest(BaseModel):
     repo_url: str
@@ -29,12 +34,25 @@ def root():
 def ui_home(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "result": None})
 
+@app.post("/ask")
+def ask_question(question: str):
+
+    results = search_code(question)
+
+    return {
+        "question": question,
+        "relevant_code": results
+    }
+
 @app.post("/analyze", response_class=HTMLResponse)
 def analyze_from_form(request: Request, repo_url: str = Form(...)):
     repo_path = clone_repository(repo_url)
+    global CURRENT_REPO
+    CURRENT_REPO = repo_path
 
     structure = get_repo_structure(repo_path)
     code_files = get_code_files(repo_path)
+    index_code_files(code_files)
     languages = detect_languages(code_files)
     technologies = detect_technologies(repo_path)
     layers = detect_architecture_layers(repo_path)
@@ -53,8 +71,26 @@ def analyze_from_form(request: Request, repo_url: str = Form(...)):
         "architecture_diagram": diagram,
         "sample_files": code_files[:20],
     }
+    global LAST_ANALYSIS
+    LAST_ANALYSIS = result
 
     return templates.TemplateResponse("index.html", {"request": request, "result": result})
+
+@app.post("/ask-ui", response_class=HTMLResponse)
+def ask_ui(request: Request, question: str = Form(...)):
+
+    results = search_code(question)
+
+    answer = "\n\n".join(results)
+
+    return templates.TemplateResponse(
+        "index.html",
+        {
+            "request": request,
+            "result": LAST_ANALYSIS,
+            "answer": answer
+        }
+    )
 
 @app.post("/analyze-repo")
 def analyze_repo(request: RepoRequest):
@@ -64,6 +100,7 @@ def analyze_repo(request: RepoRequest):
     structure = get_repo_structure(repo_path)
 
     code_files = get_code_files(repo_path)
+    index_code_files(code_files)
 
     languages = detect_languages(code_files)
 

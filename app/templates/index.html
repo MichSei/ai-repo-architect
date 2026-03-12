@@ -83,6 +83,24 @@
                 {{ result.architecture_diagram }}
             </div>
         </div>
+        <div class="card">
+            <h2>Ask About This Repository</h2>
+
+            <form action="/ask-ui" method="post">
+                <input
+                    type="text"
+                    name="question"
+                    placeholder="Where is routing implemented?"
+                    required
+                >
+                <button type="submit">Ask</button>
+            </form>
+
+            {% if answer %}
+                <h3>Answer</h3>
+                <pre>{{ answer }}</pre>
+            {% endif %}
+        </div>
     {% endif %}
 </body>
 </html>
