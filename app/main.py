@@ -8,6 +8,7 @@ from app.services.repo_analyzer import (
     detect_languages,
     detect_technologies
 )
+from app.services.llm_analyzer import generate_architecture_summary
 
 app = FastAPI()
 
@@ -33,11 +34,14 @@ def analyze_repo(request: RepoRequest):
 
     technologies = detect_technologies(repo_path)
 
+    summary = generate_architecture_summary(code_files, languages, technologies)
+
     return {
-        "repo_path": repo_path,
-        "total_files": len(structure),
-        "code_files": len(code_files),
-        "languages_detected": languages,
-        "technologies_detected": technologies,
-        "sample_files": code_files[:20]
-    }
+    "repo_path": repo_path,
+    "total_files": len(structure),
+    "code_files": len(code_files),
+    "languages_detected": languages,
+    "technologies_detected": technologies,
+    "architecture_summary": summary,
+    "sample_files": code_files[:20]
+}
