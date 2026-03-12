@@ -36,7 +36,7 @@ Provide a short architecture summary.
     return response["message"]["content"]
 
 
-def generate_architecture_diagram(languages, technologies):
+def generate_architecture_diagram(languages, technologies, layers):
 
     prompt = f"""
 You are a software architect.
@@ -48,6 +48,9 @@ Languages:
 
 Technologies:
 {technologies}
+
+Detected architecture layers:
+{layers}
 
 Generate a Mermaid architecture diagram.
 

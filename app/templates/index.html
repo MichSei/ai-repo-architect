@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>AI GitHub Repo Analyzer</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            margin-bottom: 12px;
+        }
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+        pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: #f4f4f4;
+            padding: 12px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI GitHub Repo Analyzer</h1>
+    <p>Paste a GitHub repository URL and generate architecture insights.</p>
+
+    <form action="/analyze" method="post">
+        <input
+            type="text"
+            name="repo_url"
+            placeholder="https://github.com/tiangolo/fastapi"
+            required
+        >
+        <button type="submit">Analyze Repository</button>
+    </form>
+
+    {% if result %}
+        <div class="card">
+            <h2>Detected Languages</h2>
+            <p>{{ result.languages_detected }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Detected Technologies</h2>
+            <p>{{ result.technologies_detected }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Architecture Layers</h2>
+            <p>{{ result.architecture_layers }}</p>
+        </div>
+
+        <div class="card">
+            <h2>Architecture Summary</h2>
+            <pre>{{ result.architecture_summary }}</pre>
+        </div>
+
+        <div class="card">
+            <h2>Architecture Diagram</h2>
+            <div class="mermaid">
+                {{ result.architecture_diagram }}
+            </div>
+        </div>
+    {% endif %}
+</body>
+</html>
