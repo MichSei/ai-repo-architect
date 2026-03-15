@@ -18,6 +18,7 @@ from app.services.embedding_service import index_code_files
 from app.services.embedding_service import search_code
 from app.services.rag_service import answer_repo_question
 from app.services.dependency_analyzer import analyze_python_dependencies
+from app.services.module_graph import build_module_graph
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
@@ -63,6 +64,7 @@ def analyze_from_form(request: Request, repo_url: str = Form(...)):
     diagram = generate_architecture_diagram(languages, technologies, layers)
 
     dependencies = analyze_python_dependencies(repo_path)
+    module_graph = build_module_graph(repo_path)
 
     result = {
         "repo_path": repo_path,
@@ -74,7 +76,8 @@ def analyze_from_form(request: Request, repo_url: str = Form(...)):
         "architecture_summary": summary,
         "architecture_diagram": diagram,
         "sample_files": code_files[:20],
-        "dependencies": dependencies[:20]
+        "dependencies": dependencies[:20],
+        "module_graph": module_graph[:20],
     }
     global LAST_ANALYSIS
     LAST_ANALYSIS = result
@@ -113,6 +116,7 @@ def analyze_repo(request: RepoRequest):
     layers = detect_architecture_layers(repo_path)
     diagram = generate_architecture_diagram(languages, technologies, layers)
     dependencies = analyze_python_dependencies(repo_path)
+    module_graph = build_module_graph(repo_path)
 
     return {
     "repo_path": repo_path,
@@ -124,5 +128,6 @@ def analyze_repo(request: RepoRequest):
     "architecture_diagram": diagram,
     "sample_files": code_files[:20],
     "architecture_layers": layers,
-    "dependencies": dependencies[:20]
+    "dependencies": dependencies[:20],
+    "module_graph": module_graph[:20],
 }

@@ -16,10 +16,18 @@ def index_code_files(code_files):
 
         try:
             with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()[:2000]
+                content = f.read()
 
-            documents.append(content)
-            ids.append(str(i))
+            chunks = [
+                content[i:i+1200]
+                for i in range(0, len(content), 1200)
+            ][:10]
+
+            for chunk in chunks:
+
+                documents.append(chunk)
+
+                ids.append(f"{i}_{len(ids)}")
 
         except:
             continue
