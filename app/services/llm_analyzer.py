@@ -75,6 +75,36 @@ Services --> Database
 
     diagram = response["message"]["content"]
 
-    diagram = diagram.replace("```mermaid", "").replace("```", "")
+    diagram = diagram.replace("```mermaid", "")
+    diagram = diagram.replace("```", "")
+
+    lines = diagram.split("\n")
+
+    clean_lines = []
+
+    for line in lines:
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if line.startswith("graph"):
+            clean_lines.append("graph TD")
+            continue
+
+        if "-->" in line:
+            parts = line.split("-->")
+            left = parts[0].strip()
+            right = parts[1].strip()
+            
+            left = left.replace(":", "").replace("(", "").replace(")", "")
+            right = right.replace(":", "").replace("(", "").replace(")", "")
+
+            clean_lines.append(f"{left} --> {right}")
+
+    diagram = "\n".join(clean_lines)
+
+    if not diagram.startswith("graph"):
+        diagram = "graph TD\n" + diagram
 
     return diagram.strip()

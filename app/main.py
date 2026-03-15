@@ -16,6 +16,8 @@ from app.services.llm_analyzer import (
 from app.services.architecture_detector import detect_architecture_layers
 from app.services.embedding_service import index_code_files
 from app.services.embedding_service import search_code
+from app.services.rag_service import answer_repo_question
+from app.services.dependency_analyzer import analyze_python_dependencies
 
 app = FastAPI()
 templates = Jinja2Templates(directory="app/templates")
@@ -37,11 +39,11 @@ def ui_home(request: Request):
 @app.post("/ask")
 def ask_question(question: str):
 
-    results = search_code(question)
+    answer = answer_repo_question(question)
 
     return {
         "question": question,
-        "relevant_code": results
+        "answer": answer
     }
 
 @app.post("/analyze", response_class=HTMLResponse)
@@ -60,6 +62,8 @@ def analyze_from_form(request: Request, repo_url: str = Form(...)):
     summary = generate_architecture_summary(code_files, languages, technologies)
     diagram = generate_architecture_diagram(languages, technologies, layers)
 
+    dependencies = analyze_python_dependencies(repo_path)
+
     result = {
         "repo_path": repo_path,
         "total_files": len(structure),
@@ -70,6 +74,7 @@ def analyze_from_form(request: Request, repo_url: str = Form(...)):
         "architecture_summary": summary,
         "architecture_diagram": diagram,
         "sample_files": code_files[:20],
+        "dependencies": dependencies[:20]
     }
     global LAST_ANALYSIS
     LAST_ANALYSIS = result
@@ -81,14 +86,14 @@ def ask_ui(request: Request, question: str = Form(...)):
 
     results = search_code(question)
 
-    answer = "\n\n".join(results)
+    answer = answer_repo_question(question)
 
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "result": LAST_ANALYSIS,
-            "answer": answer
+            "answer": answer    
         }
     )
 
@@ -103,16 +108,11 @@ def analyze_repo(request: RepoRequest):
     index_code_files(code_files)
 
     languages = detect_languages(code_files)
-
     technologies = detect_technologies(repo_path)
-
     summary = generate_architecture_summary(code_files, languages, technologies)
-
     layers = detect_architecture_layers(repo_path)
-
     diagram = generate_architecture_diagram(languages, technologies, layers)
-
-  
+    dependencies = analyze_python_dependencies(repo_path)
 
     return {
     "repo_path": repo_path,
@@ -123,5 +123,6 @@ def analyze_repo(request: RepoRequest):
     "architecture_summary": summary,
     "architecture_diagram": diagram,
     "sample_files": code_files[:20],
-    "architecture_layers": layers
+    "architecture_layers": layers,
+    "dependencies": dependencies[:20]
 }
