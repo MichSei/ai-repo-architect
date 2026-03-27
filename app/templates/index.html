@@ -111,6 +111,14 @@
                 <h3>Answer</h3>
                 <pre>{{ answer }}</pre>
             {% endif %}
+            {% if sources %}
+            <h3>Sources</h3>
+            <ul>
+                {% for s in sources %}
+                    <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
         </div>
     {% endif %}
 </body>

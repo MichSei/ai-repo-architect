@@ -1,56 +1,109 @@
-# AI GitHub Repository Analyzer
+# AI Repository Analyzer
 
-An AI-powered tool that analyzes GitHub repositories and generates architecture insights using a local LLM.
+A tool that takes a GitHub repository and gives a quick overview of how the project is structured.
 
-## Features
+It clones the repo locally, scans the code, and uses a local model to explain the architecture, generate a diagram, and answer questions about the codebase.
 
-- Clone and analyze any GitHub repository
-- Detect programming languages
-- Detect frameworks and technologies
-- Identify architecture layers
-- Generate architecture summaries with AI
-- Generate architecture diagrams
-- Visual web interface for analysis
+---
 
-## Tech Stack
+## What it does
 
-Backend:
-- FastAPI
-- Python
+* Clone any public GitHub repository
+* Detect programming languages and frameworks
+* Identify common architecture layers (e.g. routers, services, models)
+* Generate a short architecture summary
+* Create a simple architecture diagram (Mermaid)
+* Let you ask questions about the codebase
+* Show which files answers are based on
 
-AI:
-- Ollama
-- Llama3
+---
 
-Visualization:
-- Mermaid diagrams
+## Tech stack
 
-## Demo
+* Backend: FastAPI
+* Local LLM: Ollama (Llama 3)
+* Embeddings: sentence-transformers
+* Vector search: ChromaDB
+* UI: Jinja templates + Mermaid
 
-### Web Interface
+---
 
-![UI Demo](docs/screenshots/ui-demo.png)
+## How it works
 
-### Example Output
-
-Architecture summary and diagram generated automatically from a repository.
-
-## How It Works
-
-1. User submits a GitHub repository URL
+1. Enter a GitHub repo URL
 2. The repo is cloned locally
-3. Static analysis extracts:
-   - languages
-   - technologies
-   - architecture layers
-4. A local LLM generates:
-   - architecture summary
-   - architecture diagram
-5. Results are displayed in the UI
+3. Files are scanned and analyzed
+4. Code is split into chunks and embedded
+5. A local model generates:
 
-## Run Locally
+   * architecture summary
+   * architecture diagram
+6. You can ask questions about the repo
 
-Install dependencies:
+   * relevant code is retrieved
+   * the model generates an answer with sources
+
+---
+
+## Setup
+
+### 1. Install dependencies
 
 ```bash
 pip install -r requirements.txt
+```
+
+---
+
+### 2. Start Ollama
+
+```bash
+ollama serve
+```
+
+Make sure you have the model installed:
+
+```bash
+ollama run llama3
+```
+
+---
+
+### 3. Run the backend
+
+```bash
+uvicorn app.main:app --reload
+```
+
+---
+
+### 4. Open the app
+
+```text
+http://127.0.0.1:8000/ui
+```
+
+---
+
+## Notes
+
+* First analysis of a repo is slower (indexing + embeddings)
+* After that, results are cached and much faster
+* Everything runs locally (no external API required)
+
+---
+
+## Limitations
+
+* Best support for Python projects (for now)
+* Large repos may take longer to index
+* Architecture diagrams are simplified
+
+---
+
+## Future ideas
+
+* Better support for non-Python repos
+* Persistent cache (so indexing survives restarts)
+* More accurate dependency graphs
+* Improved diagram generation

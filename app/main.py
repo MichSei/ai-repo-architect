@@ -40,11 +40,12 @@ def ui_home(request: Request):
 @app.post("/ask")
 def ask_question(question: str):
 
-    answer = answer_repo_question(question)
+    answer, sources = answer_repo_question(question)
 
     return {
         "question": question,
-        "answer": answer
+        "answer": answer,
+        "sources": sources
     }
 
 @app.post("/analyze", response_class=HTMLResponse)
@@ -89,14 +90,15 @@ def ask_ui(request: Request, question: str = Form(...)):
 
     results = search_code(question)
 
-    answer = answer_repo_question(question)
+    answer, sources = answer_repo_question(question)
 
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
             "result": LAST_ANALYSIS,
-            "answer": answer    
+            "answer": answer,
+            "sources": sources
         }
     )
 

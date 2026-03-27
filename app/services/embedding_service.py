@@ -11,6 +11,7 @@ def index_code_files(code_files):
 
     documents = []
     ids = []
+    metadatas = []
 
     for i, path in enumerate(code_files):
 
@@ -21,13 +22,12 @@ def index_code_files(code_files):
             chunks = [
                 content[i:i+1200]
                 for i in range(0, len(content), 1200)
-            ][:10]
+            ][:5]
 
             for chunk in chunks:
-
                 documents.append(chunk)
-
                 ids.append(f"{i}_{len(ids)}")
+                metadatas.append({"path": path})
 
         except:
             continue
@@ -37,7 +37,8 @@ def index_code_files(code_files):
     collection.add(
         documents=documents,
         embeddings=embeddings,
-        ids=ids
+        ids=ids,
+        metadatas=metadatas
     )
 
 
@@ -50,4 +51,15 @@ def search_code(query):
         n_results=5
     )
 
-    return results["documents"][0]
+    documents = results["documents"][0]
+    metadatas = results["metadatas"][0]
+
+    combined = []
+
+    for doc, meta in zip(documents, metadatas):
+        combined.append({
+            "code": doc,
+            "path": meta["path"]
+        })
+
+    return combined
